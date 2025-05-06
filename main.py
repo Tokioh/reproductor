@@ -85,7 +85,7 @@ def reproducir_cancion():
         play_button.configure(image=iconos["pause"], command=cambiar_play_pause)
         img = obtener_carátula_mp3(Canciones.cabeza.ruta_audio)
         if img:
-            img = img.resize((300, 300))
+            img = img.resize((400, 400))
             img_tk = ImageTk.PhotoImage(img)
             caratula_label.configure(image=img_tk, text="")
             caratula_label.image = img_tk
@@ -112,7 +112,7 @@ def agregar_cancion():
         label_cancion.configure(text=f"Canción '{nombre}' agregada")
         img = obtener_carátula_mp3(archivo)
         if img:
-            img = img.resize((300, 300))
+            img = img.resize((400, 400))
             img_tk = ImageTk.PhotoImage(img)
             caratula_label.configure(image=img_tk, text="")
             caratula_label.image = img_tk
