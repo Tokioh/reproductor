@@ -8,19 +8,19 @@ from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
 from io import BytesIO
 
-# === INICIALIZACIÓN ===
+# INICIALIZACIÓN 
 pygame.mixer.init()
 Canciones = ListaReproduccion()
-pausado = False  # bandera para evitar que pase canción al pausar
+pausado = False 
 
-# === CONFIGURACIÓN DE VENTANA ===
+# CONFIGURACIÓN DE VENTANA 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 ventana = ctk.CTk()
 ventana.title("Reproductor Cool")
 ventana.geometry("1080x720")
 
-# === ETIQUETAS PRINCIPALES ===
+# ETIQUETAS PRINCIPALES 
 label_cancion = ctk.CTkLabel(
     ventana, text="Ninguna canción cargada",
     text_color="white", font=ctk.CTkFont("Arial", 18, weight="bold")
@@ -30,7 +30,7 @@ label_cancion.pack(pady=60)
 caratula_label = ctk.CTkLabel(ventana, text="")
 caratula_label.pack(pady=50)
 
-# === ÍCONOS ===
+#  ÍCONOS 
 def cargar_icono(ruta, tamaño=(60, 60)):
     img = Image.open(ruta).resize(tamaño)
     return ImageTk.PhotoImage(img)
@@ -45,13 +45,13 @@ iconos = {
     "folder": cargar_icono("folder.png")
 }
 
-# === INDICADORES DE MODOS ===
+# INDICADORES DE MODOS 
 etiqueta_shuffle = ctk.CTkLabel(ventana, text="🔀", text_color="white", font=ctk.CTkFont(size=20))
 etiqueta_repeat = ctk.CTkLabel(ventana, text="🔁", text_color="white", font=ctk.CTkFont(size=20))
 etiqueta_shuffle.place_forget()
 etiqueta_repeat.place_forget()
 
-# === FUNCIONES DE UTILIDAD ===
+# FUNCIONES DE UTILIDAD 
 def obtener_carátula_mp3(ruta_mp3):
     try:
         audio = MP3(ruta_mp3, ID3=ID3)
@@ -62,7 +62,7 @@ def obtener_carátula_mp3(ruta_mp3):
         print(f"No se pudo leer la carátula: {e}")
     return None
 
-# === FUNCIONES DE REPRODUCCIÓN ===
+# FUNCIONES DE REPRODUCCIÓN 
 def cambiar_play_pause():
     global pausado
     if pygame.mixer.music.get_busy():
@@ -98,7 +98,7 @@ def detener_cancion():
     label_cancion.configure(text="Canción detenida")
     play_button.configure(image=iconos["play"], command=reproducir_cancion)
 
-# === FUNCIONES DE LISTA ===
+# FUNCIONES DE LISTA 
 def agregar_cancion():
     archivo = filedialog.askopenfilename(filetypes=[("Archivos de audio", "*.mp3;*.wav")])
     if archivo:
@@ -139,7 +139,7 @@ def cargar_carpeta():
                 Canciones.agregar_cancion(nombre, artista, duracion, ruta_audio)
         label_cancion.configure(text="Canciones cargadas desde la carpeta")
 
-# === FUNCIONES DE MODO Y NAVEGACIÓN ===
+# FUNCIONES DE MODO Y NAVEGACIÓN 
 def toggle_aleatorio():
     Canciones.activar_aleatorio()
     if Canciones.modo_aleatorio:
@@ -167,14 +167,14 @@ def verificar_estado():
         siguiente_cancion()
     ventana.after(1000, verificar_estado)
 
-# === BOTONES DESPLEGABLES ===
-# === Botón flotante desplegable (esquina inferior derecha) ===
+# BOTONES DESPLEGABLES 
+#  Botón flotante desplegable (esquina inferior derecha) 
 botonera_frame = ctk.CTkFrame(ventana, fg_color="transparent", width=60, height=240)
 botonera_frame.place(relx=1.0, rely=1.0, anchor="se", x=-30, y=-30)
 
 
 
-# === BOTONERA PRINCIPAL DE REPRODUCCIÓN ===
+#  BOTONERA PRINCIPAL DE REPRODUCCIÓN 
 frame_botones = ctk.CTkFrame(ventana, fg_color="transparent")
 frame_botones.pack(pady=30)
 
@@ -198,7 +198,7 @@ ctk.CTkButton(frame_botones, image=iconos["next"], text="", width=60, height=60,
 ctk.CTkButton(frame_botones, image=iconos["repeat"], text="", width=60, height=60,
               fg_color="black", hover_color="#333333", corner_radius=10, border_width=0,
               command=toggle_repetir).grid(row=0, column=4, padx=10)
-# === BOTONES INFERIORES IZQUIERDA ===
+# BOTONES INFERIORES IZQUIERDA 
 frame_inferior = ctk.CTkFrame(ventana, fg_color="transparent")
 frame_inferior.place(relx=0.0, rely=1.0, anchor="sw", x=20, y=-20)
 
@@ -213,6 +213,5 @@ btn_agregar.grid(row=0, column=0, padx=10)
 btn_folder.grid(row=0, column=1, padx=10)
 btn_eliminar.grid(row=0, column=2, padx=10)
 
-# === LOOP PRINCIPAL ===
 verificar_estado()
 ventana.mainloop()
