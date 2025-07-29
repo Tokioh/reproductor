@@ -11,7 +11,10 @@ from io import BytesIO
 # INICIALIZACIÓN 
 pygame.mixer.init()
 Canciones = ListaReproduccion()
-pausado = False 
+pausado = False
+volumen_actual = 0.7  # Volumen inicial (70%)
+muteado = False
+volumen_antes_mute = 0.7 
 
 # CONFIGURACIÓN DE VENTANA 
 ctk.set_appearance_mode("dark")
@@ -64,6 +67,45 @@ def obtener_carátula_mp3(ruta_mp3):
         print(f"No se pudo leer la carátula: {e}")
     return None
 
+# FUNCIONES DE CONTROL DE VOLUMEN
+def cambiar_volumen(valor):
+    global volumen_actual, muteado
+    volumen_actual = float(valor) / 100.0
+    pygame.mixer.music.set_volume(volumen_actual)
+    
+    # Actualizar el indicador visual del volumen
+    porcentaje = int(volumen_actual * 100)
+    label_volumen.configure(text=f"🔊 {porcentaje}%")
+    
+    # Si el volumen es 0, mostrar como muteado
+    if volumen_actual == 0:
+        muteado = True
+        btn_mute.configure(text="🔇")
+    else:
+        muteado = False
+        btn_mute.configure(text="🔊")
+
+def toggle_mute():
+    global muteado, volumen_antes_mute, volumen_actual
+    
+    if muteado:
+        # Desmutear: restaurar volumen anterior
+        volumen_actual = volumen_antes_mute
+        pygame.mixer.music.set_volume(volumen_actual)
+        slider_volumen.set(volumen_actual * 100)
+        btn_mute.configure(text="🔊")
+        label_volumen.configure(text=f"🔊 {int(volumen_actual * 100)}%")
+        muteado = False
+    else:
+        # Mutear: guardar volumen actual y poner en 0
+        volumen_antes_mute = volumen_actual
+        volumen_actual = 0
+        pygame.mixer.music.set_volume(0)
+        slider_volumen.set(0)
+        btn_mute.configure(text="🔇")
+        label_volumen.configure(text="🔇 0%")
+        muteado = True
+
 # FUNCIONES DE REPRODUCCIÓN 
 def cambiar_play_pause():
     global pausado
@@ -80,6 +122,7 @@ def reproducir_cancion():
     if Canciones.cabeza:
         pygame.mixer.music.load(Canciones.cabeza.ruta_audio)
         pygame.mixer.music.play()
+        pygame.mixer.music.set_volume(volumen_actual)  # Aplicar volumen actual
         label_cancion.configure(text="")  # Oculta el texto grande
         nombre_cancion_label.configure(text=Canciones.cabeza.nombre)
         play_button.configure(image=iconos["pause"], command=cambiar_play_pause)
@@ -203,6 +246,32 @@ repeat_button = ctk.CTkButton(frame_botones, image=iconos["repeat"], text="", wi
     fg_color="black", hover_color="#333333", corner_radius=10, border_width=0,
     command=toggle_repetir)
 repeat_button.grid(row=0, column=4, padx=10)
+
+# CONTROLES DE VOLUMEN
+frame_volumen = ctk.CTkFrame(ventana, fg_color="transparent")
+frame_volumen.place(relx=1.0, rely=0.0, anchor="ne", x=-20, y=20)
+
+# Etiqueta de volumen
+label_volumen = ctk.CTkLabel(frame_volumen, text="🔊 70%", text_color="white", 
+                            font=ctk.CTkFont("Arial", 14))
+label_volumen.grid(row=0, column=0, columnspan=2, pady=(0, 5))
+
+# Slider de volumen
+slider_volumen = ctk.CTkSlider(frame_volumen, from_=0, to=100, 
+                              orientation="vertical", height=150, width=20,
+                              command=cambiar_volumen)
+slider_volumen.set(70)  # Volumen inicial 70%
+slider_volumen.grid(row=1, column=0, padx=(0, 10))
+
+# Botón de mute/unmute
+btn_mute = ctk.CTkButton(frame_volumen, text="🔊", width=40, height=40,
+                        fg_color="black", hover_color="#333333", 
+                        corner_radius=20, font=ctk.CTkFont(size=16),
+                        command=toggle_mute)
+btn_mute.grid(row=1, column=1)
+
+# Configurar volumen inicial
+pygame.mixer.music.set_volume(volumen_actual)
 # BOTONES INFERIORES IZQUIERDA 
 frame_inferior = ctk.CTkFrame(ventana, fg_color="transparent")
 frame_inferior.place(relx=0.0, rely=1.0, anchor="sw", x=20, y=-20)
